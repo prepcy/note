@@ -264,7 +264,7 @@ devmem查看寄存器的值
 
 控制LED11亮灭
 
-![image-20220922175307284](C:\Users\yuanj\AppData\Roaming\Typora\typora-user-images\image-20220922175307284.png)
+![image-20220922175307284](note.assets/image-20220922175307284.png)
 
 LED11属于GPIO1，所以基准地址为0x28005000
 

@@ -124,24 +124,24 @@ LXC关键技术点：
 
 报错
 
-<img src="C:\Users\yuanj\AppData\Roaming\Typora\typora-user-images\image-20220905155610522.png" alt="image" style="zoom:100%;" />
+<img src="work.assets/image-20220905155610522.png" alt="image" style="zoom:100%;" />
 
 这里判断是没有libvirt，查找libvirt需求
 
-![image-20220905180420124](C:\Users\yuanj\AppData\Roaming\Typora\typora-user-images\image-20220905180420124.png)
+![image-20220905180420124](work.assets/image-20220905180420124.png)
 
 查找BR2_PACKAGE_LIBVIRT
 
 BR2_PACKAGE_LIBVIRT_ARCH_SUPPORTS未支持sparc，修改package/libvirt/Config.in文件，添加sparc支持
 
-![image-20220905180543435](C:\Users\yuanj\AppData\Roaming\Typora\typora-user-images\image-20220905180543435.png)
+![image-20220905180543435](work.assets/image-20220905180543435.png)
 
 BR2_PACKAGE_HAS_UDEV为no
 ！！！
 
 询问发现，不需要libvirt，选上内核包会很大！
 
-![image-20734](C:\Users\yuanj\AppData\Roaming\Typora\typora-user-images\image-20220906093423734.png)
+![image-20734](work.assets/image-20220906093423734.png)
 
 选中上图内容即可
 
@@ -151,7 +151,7 @@ BR2_PACKAGE_HAS_UDEV为no
 
 "/"搜索NAMESPACE，选中Namespaces support，回车进入
 
-![image-20220906095934724](C:\Users\yuanj\AppData\Roaming\Typora\typora-user-images\image-20220906095934724.png)
+![image-20220906095934724](work.assets/image-20220906095934724.png)
 
 全部勾选，保存退出，重新编译
 
@@ -163,7 +163,7 @@ BR2_PACKAGE_HAS_UDEV为no
 
 结果：
 
-![image-20220906103325039](C:\Users\yuanj\AppData\Roaming\Typora\typora-user-images\image-20220906103325039.png)
+![image-20220906103325039](work.assets/image-20220906103325039.png)
 
 namespace完成
 
@@ -173,57 +173,57 @@ namespace完成
 
 结果：
 
-![image-20220906143559732](C:\Users\yuanj\AppData\Roaming\Typora\typora-user-images\image-20220906143559732.png)
+![image-20220906143559732](work.assets/image-20220906143559732.png)
 
 CGROUP_PERF
 
-![image-20220907155721591](C:\Users\yuanj\AppData\Roaming\Typora\typora-user-images\image-20220907155721591.png)
+![image-20220907155721591](work.assets/image-20220907155721591.png)
 
-![image-20220907165030386](C:\Users\yuanj\AppData\Roaming\Typora\typora-user-images\image-20220907165030386.png)
+![image-20220907165030386](work.assets/image-20220907165030386.png)
 
 
 
-![image-20220907165721319](C:\Users\yuanj\AppData\Roaming\Typora\typora-user-images\image-20220907165721319.png)
+![image-20220907165721319](work.assets/image-20220907165721319.png)
 
 func tracer ？？？
 
 算了先不管
 
-![image-20220907172545680](C:\Users\yuanj\AppData\Roaming\Typora\typora-user-images\image-20220907172545680.png)
+![image-20220907172545680](work.assets/image-20220907172545680.png)
 
 
 
 主要问题CGROUP_PERL
 
-![image-20220907174535677](C:\Users\yuanj\AppData\Roaming\Typora\typora-user-images\image-20220907174535677.png)
+![image-20220907174535677](work.assets/image-20220907174535677.png)
 
-![image-20220907174554303](C:\Users\yuanj\AppData\Roaming\Typora\typora-user-images\image-20220907174554303.png)
+![image-20220907174554303](work.assets/image-20220907174554303.png)
 
 找了半天没有找到问题，最后
 
-![image-20220908113652013](C:\Users\yuanj\AppData\Roaming\Typora\typora-user-images\image-20220908113652013.png)
+![image-20220908113652013](work.assets/image-20220908113652013.png)
 
 偶然发现perf_events需要sparc64，默认是sparc所以无法选中，选中之后去查看perf_events
 
-![image-20220908113959137](C:\Users\yuanj\AppData\Roaming\Typora\typora-user-images\image-20220908113959137.png)
+![image-20220908113959137](work.assets/image-20220908113959137.png)
 
 depends on变成y了，输入1进去选中
 
-![image-20220908114036561](C:\Users\yuanj\AppData\Roaming\Typora\typora-user-images\image-20220908114036561.png)
+![image-20220908114036561](work.assets/image-20220908114036561.png)
 
 现在去看看CGROUP_PERF
 
-![image-20220908114115099](C:\Users\yuanj\AppData\Roaming\Typora\typora-user-images\image-20220908114115099.png)
+![image-20220908114115099](work.assets/image-20220908114115099.png)
 
 depends on变成y了，输入1进去选中
 
-![image-20220908114140341](C:\Users\yuanj\AppData\Roaming\Typora\typora-user-images\image-20220908114140341.png)
+![image-20220908114140341](work.assets/image-20220908114140341.png)
 
 出现选项了，选中，保存退出，开始编译
 
 出错了
 
-![image-20220908114308976](C:\Users\yuanj\AppData\Roaming\Typora\typora-user-images\image-20220908114308976.png)
+![image-20220908114308976](work.assets/image-20220908114308976.png)
 
 编译错误，这要如何解决？？？
 
@@ -237,7 +237,7 @@ depends on变成y了，输入1进去选中
 
 跳过lxc-checkconfig报错直接创建
 
-![image-20220908160310295](C:\Users\yuanj\AppData\Roaming\Typora\typora-user-images\image-20220908160310295.png)
+![image-20220908160310295](work.assets/image-20220908160310295.png)
 
 ![image-20220909101338391](C:\Users\yuanj\AppData\Roaming\Typora\typora-user-images\image-20220909101338391.png)
 
@@ -248,42 +248,42 @@ depends on变成y了，输入1进去选中
 - 第一个lxc-busybox
 
 
-![image-20220908160433986](C:\Users\yuanj\AppData\Roaming\Typora\typora-user-images\image-20220908160433986.png)
+![image-20220908160433986](work.assets/image-20220908160433986.png)
 
 失败
 
 - 第二个lxc-download
 
 
-![image-20220908160611125](C:\Users\yuanj\AppData\Roaming\Typora\typora-user-images\image-20220908160611125.png)
+![image-20220908160611125](work.assets/image-20220908160611125.png)
 
 没有网络配置，失败，配上网络应该可行
 
 打开网址看看
 
-![image-20220909100142142](C:\Users\yuanj\AppData\Roaming\Typora\typora-user-images\image-20220909100142142.png)
+![image-20220909100142142](work.assets/image-20220909100142142.png)
 
 - 第三个lxc-local
 
 
-![image-20220908160909053](C:\Users\yuanj\AppData\Roaming\Typora\typora-user-images\image-20220908160909053.png)
+![image-20220908160909053](work.assets/image-20220908160909053.png)
 
 失败，找到rootfs
 
-![image-20220908175126782](C:\Users\yuanj\AppData\Roaming\Typora\typora-user-images\image-20220908175126782.png)
+![image-20220908175126782](work.assets/image-20220908175126782.png)
 
 只有一个README文件？？？
 
 打开看看
 
-![image-20220908175155719](C:\Users\yuanj\AppData\Roaming\Typora\typora-user-images\image-20220908175155719.png)
+![image-20220908175155719](work.assets/image-20220908175155719.png)
 
 翻译：他的目录必须存在，即使它可能是空的。它用于将lxc的rootfs临时挂载到私有挂载命名空间中，该命名空间仅由容器中运行的进程可见。
 
 - 第四个lxc-oci
 
 
-![image-20220909095115871](C:\Users\yuanj\AppData\Roaming\Typora\typora-user-images\image-20220909095115871.png)
+![image-20220909095115871](work.assets/image-20220909095115871.png)
 
 失败
 
@@ -295,11 +295,11 @@ depends on变成y了，输入1进去选中
 
 尝试直接ubuntu虚拟机上安装一个lxc，构建一个template，拷贝到sparc里
 
-![image-20220909171102381](C:\Users\yuanj\AppData\Roaming\Typora\typora-user-images\image-20220909171102381.png)
+![image-20220909171102381](work.assets/image-20220909171102381.png)
 
 失败，但是原因有所变化，可能原因
 
-![image-20220909171204577](C:\Users\yuanj\AppData\Roaming\Typora\typora-user-images\image-20220909171204577.png)
+![image-20220909171204577](work.assets/image-20220909171204577.png)
 
 编译的时候就报错，这里出了错
 
@@ -307,7 +307,7 @@ depends on变成y了，输入1进去选中
 
 git下来一个lxc-templates，将编译的模板拷贝到sparc
 
-![image-20220909173803416](C:\Users\yuanj\AppData\Roaming\Typora\typora-user-images\image-20220909173803416.png)
+![image-20220909173803416](work.assets/image-20220909173803416.png)
 
 和前面模板一样的问题
 
@@ -419,7 +419,7 @@ TF卡出错，更换tf卡还是出错，与客户交流，客户也没使用过T
 
 查看电脑与板子连接的网络，设置ip地址
 
-![image-20220916182410308](C:\Users\yuanj\AppData\Roaming\Typora\typora-user-images\image-20220916182410308.png)
+![image-20220916182410308](work.assets/image-20220916182410308.png)
 
 设置板子ip，同网段，但是不能一样
 
@@ -427,7 +427,7 @@ TF卡出错，更换tf卡还是出错，与客户交流，客户也没使用过T
 setenv ipaddr 192.168.1.9
 ```
 
-![image-20220919091215836](C:\Users\yuanj\AppData\Roaming\Typora\typora-user-images\image-20220919091215836.png)
+![image-20220919091215836](work.assets/image-20220919091215836.png)
 
 ping电脑ip，验证
 
@@ -435,7 +435,7 @@ ping电脑ip，验证
 ping 192.168.1.10
 ```
 
-![image-20220919091229930](C:\Users\yuanj\AppData\Roaming\Typora\typora-user-images\image-20220919091229930.png)
+![image-20220919091229930](work.assets/image-20220919091229930.png)
 
 显示host is alive就表示配置完成
 
@@ -449,11 +449,11 @@ setenv serverip 192.168.1.10
 
 主机打开tftp软件，并且将要传输的文件放在该目录下
 
-![image-20220919095305805](C:\Users\yuanj\AppData\Roaming\Typora\typora-user-images\image-20220919095305805.png)
+![image-20220919095305805](work.assets/image-20220919095305805.png)
 
 打开软件
 
-![image-20220919095329143](C:\Users\yuanj\AppData\Roaming\Typora\typora-user-images\image-20220919095329143.png)
+![image-20220919095329143](work.assets/image-20220919095329143.png)
 
 板子输入指令
 
@@ -463,11 +463,11 @@ setenv serverip 192.168.1.10
 printenv
 ```
 
-![image-20220919104147458](C:\Users\yuanj\AppData\Roaming\Typora\typora-user-images\image-20220919104147458.png)
+![image-20220919104147458](work.assets/image-20220919104147458.png)
 
 查找kernel_addr地址
 
-![image-20220919104230660](C:\Users\yuanj\AppData\Roaming\Typora\typora-user-images\image-20220919104230660.png)
+![image-20220919104230660](work.assets/image-20220919104230660.png)
 
 查找文件系统地址
 
@@ -511,11 +511,11 @@ bootm 1d000000 2100000 1cf00040
 
 对比一下，客户系统启动
 
-![image-20220919144950427](C:\Users\yuanj\AppData\Roaming\Typora\typora-user-images\image-20220919144950427.png)
+![image-20220919144950427](work.assets/image-20220919144950427.png)
 
 自己的系统
 
-![image-20220919171211099](C:\Users\yuanj\AppData\Roaming\Typora\typora-user-images\image-20220919171211099.png)
+![image-20220919171211099](work.assets/image-20220919171211099.png)
 
 
 
@@ -525,7 +525,7 @@ bootm 1d000000 2100000 1cf00040
 
 从bootcmd开始追查流程
 
-![image-20220920102550438](C:\Users\yuanj\AppData\Roaming\Typora\typora-user-images\image-20220920102550438.png)
+![image-20220920102550438](work.assets/image-20220920102550438.png)
 
 启动指令
 
@@ -545,7 +545,7 @@ run xilinxcmd && sf probe 0 0 0 && sf read $kernel_zip_addr $kernel_qspi_offset 
 sf probe 0 0 0 && sf read $kernel_zip_addr $kernel_qspi_offset $kernel_size && unzip $kernel_unzip_addr $kernel_addr
 ```
 
-![image-20220920102843175](C:\Users\yuanj\AppData\Roaming\Typora\typora-user-images\image-20220920102843175.png)
+![image-20220920102843175](work.assets/image-20220920102843175.png)
 
 读客户设备树
 
@@ -553,7 +553,7 @@ sf probe 0 0 0 && sf read $kernel_zip_addr $kernel_qspi_offset $kernel_size && u
 sf read $dts_addr $dts_qspi_offset $dts_size
 ```
 
-![image-20220920102857414](C:\Users\yuanj\AppData\Roaming\Typora\typora-user-images\image-20220920102857414.png)
+![image-20220920102857414](work.assets/image-20220920102857414.png)
 
 拷贝我们自己的文件系统
 
@@ -561,7 +561,7 @@ sf read $dts_addr $dts_qspi_offset $dts_size
 tftpboot 02100000 JARI-Z7-ramdisk
 ```
 
-![image-20220920102824351](C:\Users\yuanj\AppData\Roaming\Typora\typora-user-images\image-20220920102824351.png)
+![image-20220920102824351](work.assets/image-20220920102824351.png)
 
 ~~读（错误原因）~~
 
@@ -573,7 +573,7 @@ tftpboot 02100000 JARI-Z7-ramdisk
 booti $kernel_addr 2100000 $dts_load_addr
 ```
 
-![image-20220920104257788](C:\Users\yuanj\AppData\Roaming\Typora\typora-user-images\image-20220920104257788.png)
+![image-20220920104257788](work.assets/image-20220920104257788.png)
 
 完成
 
@@ -593,7 +593,7 @@ zcat  /proc/config.gz
 udhcpc -i eth0
 ```
 
-![image-20220920105613446](C:\Users\yuanj\AppData\Roaming\Typora\typora-user-images\image-20220920105613446.png)
+![image-20220920105613446](work.assets/image-20220920105613446.png)
 
 使用ssh传输配置文件到30
 
@@ -797,6 +797,8 @@ git commit -m "init repo as linux 4.19.90 main stream"
 
 
 
+
+
 # 飞腾测试
 
 ### 测试硬盘速率
@@ -807,7 +809,7 @@ dd指令测试写速度
 dd if=/dev/zero of=test bs=4M count=100
 ```
 
-![image-20220921145300176](C:\Users\yuanj\AppData\Roaming\Typora\typora-user-images\image-20220921145300176.png)
+![image-20220921145300176](work.assets/image-20220921145300176.png)
 
  dd指令测试读速度
 
@@ -815,7 +817,7 @@ dd if=/dev/zero of=test bs=4M count=100
 dd if=test of=/dev/null
 ```
 
-![image-20220921145321536](C:\Users\yuanj\AppData\Roaming\Typora\typora-user-images\image-20220921145321536.png)
+![image-20220921145321536](work.assets/image-20220921145321536.png)
 
 
 
@@ -866,23 +868,25 @@ iperf -c 192.168.4.160 -P 6 -t 60
 
  网口eth1  发送速率94.2Mbits/s
 
-![img](file:///C:/Users/yuanj/AppData/Local/Temp/msohtmlclip1/01/clip_image002.jpg)
+![image-20220922181656744](work.assets/image-20220922181656744.png)
 
-  
+
+
+
 
 接收速率94.2Mbits/s
 
-![img](file:///C:/Users/yuanj/AppData/Local/Temp/msohtmlclip1/01/clip_image004.jpg)
+![image-20220922181647257](work.assets/image-20220922181647257.png)
 
 网口enp2s0f0  网口有问题 
 
 网口enp2s0f1  发送速率94.3Mbits/s 
 
-![img](file:///C:/Users/yuanj/AppData/Local/Temp/msohtmlclip1/01/clip_image006.jpg)
+![image-20220922181815197](work.assets/image-20220922181815197.png)
 
 接收速率94.2Mbits/s
 
-![img](file:///C:/Users/yuanj/AppData/Local/Temp/msohtmlclip1/01/clip_image008.jpg)
+![image-20220922181822868](work.assets/image-20220922181822868.png)
 
   
 
@@ -930,7 +934,7 @@ devmem查看寄存器的值
 
 控制LED11亮灭
 
-![image-20220922175307284](C:\Users\yuanj\AppData\Roaming\Typora\typora-user-images\image-20220922175307284.png)
+![image-20220922175307284](work.assets/image-20220922175307284.png)
 
 LED11属于GPIO1，所以基准地址为0x28005000
 
@@ -965,6 +969,124 @@ devmem 0x2800500c w 0x02
 ```
 
 因为没有设置其他口为输出模型，所以即使为低电平，也未生效
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
