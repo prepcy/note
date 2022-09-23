@@ -972,7 +972,11 @@ devmem 0x2800500c w 0x02
 
 
 
+#### 使用设备号配置
 
+进入/sys/class/gpio目录可以看到
+
+![image-20220923095935807](work.assets/image-20220923095935807.png)
 
 
 
