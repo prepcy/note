@@ -904,7 +904,7 @@ echo 123456 > /dev/ttyAMA3
 
 ### 测试can
 
-配置板卡can0波特率为1M
+配置板卡can0波特率为1Mcd /bo		
 
 ```
 ifconfig can0 down;ip link set can0 type can bitrate 1000000;ip link set can0 up
@@ -972,92 +972,191 @@ devmem 0x2800500c w 0x02
 
 
 
-#### 使用设备号配置
+#### 使用GPIO位号配置
 
 进入/sys/class/gpio目录可以看到
 
 ![image-20220923095935807](work.assets/image-20220923095935807.png)
 
+飞腾设定2个GPIO口，分别是gpio0和gpio1
 
+每组gpio口包含16个GPIO，分别对应A0-7，B0-7
 
+使用480和496就是这两个gpio的起始位号
 
+这里查找的是LED11，就是GPIO1_B1
 
+##### 验证
 
+假定496为gpio1的起始位号，GPIO1_B1位号为496+8+2=506
 
+```
+echo 506 > /sys/class/gpio/exprt
+```
 
+查看目录
 
+![image-20220923115812353](work.assets/image-20220923115812353.png)
 
+进入GPIO506目录，查看direction状态
 
+```
+cat direction
+```
 
+![image-20220923120004202](work.assets/image-20220923120004202.png)
 
+in表示输入状态，修改为输出状态
 
+```
+echo out > direction
+```
 
+查看direction状态
 
+![image-20220923122757112](work.assets/image-20220923122757112.png)
 
+现在查看value的值
 
+![image-20220923122907681](work.assets/image-20220923122907681.png)
 
+此时LED11灯应该亮起，但是板子上灯是熄灭状态
 
 
 
+##### 结论
 
+所以gpio1的起始位号是480，GPIO1_B1位号为480+8+2=490
 
+```
+echo 490 > /sys/class/gpio/exprt
+```
 
+![image-20220923123141291](work.assets/image-20220923123141291.png)
 
+进入GPIO506目录，查看direction状态
 
+```
+cat direction
+```
 
+![image-20220923123326845](work.assets/image-20220923123326845.png)
 
+in表示输入状态，修改为输出状态
 
+```
+echo out > direction
+```
 
+查看direction状态
 
+![image-20220923123345053](work.assets/image-20220923123345053.png)
 
+现在查看value的值
 
+![image-20220923123406452](work.assets/image-20220923123406452.png)
 
+此时LED11灯应该亮起，板子上灯是也是亮起状态，应该是将direction设置为out之后就亮起了
 
+现在改变value值
 
+```
+echo 1 > value
+```
 
+现在板子上LED11熄灭
 
+完成
 
 
 
+### memtester内存压力测试
 
+下载安装包https://pyropus.ca./software/memtester/
 
+解压
 
+```
+tar xf memtester-4.5.1.tar.gz
+```
 
+进入文件，准备交叉编译
 
+修改文件conf-cc和conf-ld
 
+将cc修改为交叉编译工具链
 
+修改Makefile安装路径，方便打包
 
+将20行INSTALLPATH修改为用户路径
 
+编译安装
 
+```
+make && make install
+```
 
+将安装目录打包发送到板子上
 
+测试
 
+```
+./memtester 256 1 
+```
 
+测试256MB内存，测试1次
 
+![image-20220929103553322](work.assets/image-20220929103553322.png)
 
+完成！
 
 
 
+### ltp系统压力测试
 
+git下载ltp源码
 
+```
+git clone https://gitlab.jrlc.link:442/jrlcgroup/testcases/ltp.git
+```
 
+进入ltp文件
 
+```
+make autotools
+```
 
+配置安装目录和交叉编译工具链
 
+```
+./configure --prefix=/home/jrlc/install CC=/home/jrlc/toolchain/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-gcc --host=aarch64-linux
+```
 
+编译安装
 
+```
+make && make install
+```
 
 
 
+ltp测试不跑失败测试，只跑通过测试
 
+崩溃
 
+![image-20220929140422393](work.assets/image-20220929140422393.png)
 
+![image-20220929140447144](work.assets/image-20220929140447144.png)
 
+使用最小测试集
 
+![image-20220929154226248](work.assets/image-20220929154226248.png)
 
+![image-20220929154440823](work.assets/image-20220929154440823.png)
 
 
 
+![image-20220929170405142](work.assets/image-20220929170405142.png)
 
 
 
@@ -1075,18 +1174,400 @@ devmem 0x2800500c w 0x02
 
 
 
+### rtc验证
 
+根据客户需求，添加rtc-i2c驱动，ds1307驱动，将客户代码与/home/yuanjilin/JARL/linux-kprl/drivers/rtc目录的rtc-ds1307.c文件替换
 
+配置内核
 
+```
+make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j64 menuconfig
+```
 
+搜索ds1307
 
+选中RTC_DRV_DS1307
 
+保存退出，开始编译
 
+报错
 
+![image-20220929101607917](work.assets/image-20220929101607917.png)
 
+```
+grep -inr rtc_add_group drivers/
+```
 
+![image-20220929102741815](work.assets/image-20220929102741815.png)
 
+将rtc-core.h头文件包含到rtc-ds1307.c中，重新编译
 
+编译完成！
+
+
+
+rtc时间设置
+
+先设置系统时间
+
+```
+date 092910002022.00
+```
+
+设置时间，月/日/时/分/年.秒
+
+同步系统时间到硬件
+
+```
+hwclock -w
+```
+
+查看硬件时间
+
+```
+hwclock -r
+```
+
+硬件时间就变成2022.09.29 10:10:00
+
+
+
+rtc-i2c系统掉电之后时间复位
+
+
+
+
+
+### 开机默认打开网口
+
+修改目录/etc/init.d下的文件S50telnet文件，添加命令
+
+```
+ifconfig eth0 up
+ifconfig eth1 up
+ifconfig enp2s0f1 up
+ifconfig enp2s0f0 up
+```
+
+
+
+
+
+### 看门狗配置
+
+目录
+
+```
+/home/yuanjilin/JARL/linux-kprl
+```
+
+配置
+
+```
+make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j64 menuconfig
+```
+
+搜索
+
+CONFIG_ARM_SBSA_WATCHDOG
+
+CONFIG_ACPI_GTDT
+
+确保全部选中，编译即可
+
+```
+make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j64
+```
+
+启动系统
+
+```
+echo 1 > /dev/watchdog
+```
+
+过一会系统重启，看门狗驱动完成
+
+
+
+
+
+### ADC驱动
+
+目录
+
+```
+/home/yuanjilin/JARI/linux-kprl
+```
+
+配置
+
+```
+make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j64 menuconfig
+```
+
+搜索
+
+GENERIC_ADC_THERMAL
+
+选中状态
+
+编译
+
+```
+make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j64
+```
+
+启动系统，查看
+
+```
+ls /sys/class/thermal/
+```
+
+有内容，完成
+
+
+
+
+
+### minicom
+
+修改文件
+
+```
+/home/wangx/kw/kprl/output/ZX/T3/CQA3T_BV3_DK/build/minicom-19ab49422f3431102c31fea01549121385113f80/src/minicom.c
+```
+
+第1019行函数修改
+
+直接再函数调用时return，不执行任何操作，测试函数，不会影响程序运行
+
+
+
+
+
+### LTP
+
+将ltp-testsuite.tar发送到板子
+
+解压
+
+```
+tar xf ltp-testsuite.tar
+```
+
+进入ltp-testsuite
+
+```
+cd ltp-testsuite-install
+```
+
+运行
+
+```
+./runltp -p -f test -l ltp_kernel.log -o ltp.output
+```
+
+测试结果再results目录下的ltp_kernel.log文件
+
+
+
+### memtester
+
+将memtester-testcase.tar发送到板子
+
+解压
+
+```
+tar xf memtester-testcase.tar
+```
+
+进入ltp-testsuite
+
+```
+cd memtester-testsuite-install/bin
+```
+
+运行
+
+```
+./memtester 256 1
+```
+
+测试256MB，测试一次
+
+
+
+
+
+### 网口问题
+
+问题描述：将网口down之后再up，网口不同
+
+
+
+##### 网口enp2s0f1
+
+- 内网路由测试
+
+先ping通30
+
+down
+
+up
+
+再次ping30服务器，ping不通
+
+使用udhcpc -i enp2s0f1，ping通了
+
+
+
+- 电脑直连测试
+
+ping通电脑IP地址
+
+down
+
+up
+
+再次ping电脑IP地址，ping通了
+
+
+
+判断：路由未自动配置
+
+
+
+##### 网口eth1
+
+- 内网路由测试
+
+先ping通30
+
+down
+
+up
+
+再次ping30服务器，ping不通
+
+使用udhcpc -i eth1，无效
+
+需要关掉电源重启
+
+
+
+- 电脑直连测试
+
+ping通电脑IP地址
+
+down
+
+up
+
+再次ping电脑IP地址，ping不通
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+can目录
+
+```
+/home/wangx/kw/kprl/output/phytium/ft2000a/JARI-WORKS/build/linux-7e4ed49d/drivers/net/can
+```
+
+Image目录
+
+```
+/home/wangx/kw/kprl/output/phytium/ft2000a/JARI-WORKS/images
+```
+
+can测试代码交叉编译
+
+```
+make CC=aarch64-linux-gnu-gcc
+```
+
+```
+./can_demo_app -d can0 -s 300 -b 55
+```
+
+
+
+查看中断
+
+cat /proc/interrupts
+
+![e82702330b4ecf741d7eb4d10bc1405](work.assets/e82702330b4ecf741d7eb4d10bc1405.png)
+
+ 删除boot界面JARI
+
+efibootmgr -b 000x -B
+
+
+
+```
+make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j64    menuconfig
+```
+
+
+
+kernel地址
+
+```
+/home/yuanjilin/JARI/linux-kprl/arch/arm64/boot/Image.gz
+```
+
+
+
+/home/yuanjilin/JARI/linux-kprl/drivers/hwmon/
+
+ina2xx.ko
+
+lm90.ko
+
+raspberrypi-hwmon.ko
+
+
+
+
+
+gpt1
+
+a1ea5554-aeb9-412a-9f9d-675be56d705e
+
+
+
+gpt3
+
+40bf4590-7534-465e-b4a7-8d1677e80364
+
+
+
+nvme0n1p1
 
 
 
