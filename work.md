@@ -1216,6 +1216,14 @@ date 092910002022.00
 
 设置时间，月/日/时/分/年.秒
 
+或者
+
+```
+date 202009291000.0
+```
+
+年/月/日/时/分.秒
+
 同步系统时间到硬件
 
 ```
@@ -1323,7 +1331,7 @@ make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j64
 ls /sys/class/thermal/
 ```
 
-有内容，完成
+无内容，待完善
 
 
 
@@ -1399,79 +1407,110 @@ cd memtester-testsuite-install/bin
 
 
 
+### 内核编译环境
+
+内核目录删除除了scripts之外所有的.c文件
+
+```
+mv scripts ../
+rm `find -name "*.c"`
+mv ../scripts .
+```
+
+
+
+
+
 ### 网口问题
 
-问题描述：将网口down之后再up，网口不同
+问题描述：将网口down之后再up，网口link不上
 
 
 
-##### 网口enp2s0f1
+将yt8521驱动添加
 
-- 内网路由测试
+源码地址30服务器
 
-先ping通30
+```
+/home/yuanjilin/JARI/buildmod/yt-phy-driver/linux
+```
 
-down
+将drivers和include文件拷贝到内核源码
 
-up
+修改配置
 
-再次ping30服务器，ping不通
+```
+vim /home/yuanjilin/JARI/linux-kprl/drivers/net/phy/Kconfig
+```
 
-使用udhcpc -i enp2s0f1，ping通了
+在438行添加内容
 
-
-
-- 电脑直连测试
-
-ping通电脑IP地址
-
-down
-
-up
-
-再次ping电脑IP地址，ping通了
-
-
-
-判断：路由未自动配置
+```
+config MOTORCOMM_PHY
+    tristate "Motorcomm PHYs"
+    ---help---
+      Supports the YT8010, YT8510, YT8511, YT8512 PHYs.
+```
 
 
 
-##### 网口eth1
+修改编译项
 
-- 内网路由测试
+```
+vim /home/yuanjilin/JARI/linux-kprl/drivers/net/phy/Makefile
+```
 
-先ping通30
+在最后添加内容
 
-down
-
-up
-
-再次ping30服务器，ping不通
-
-使用udhcpc -i eth1，无效
-
-需要关掉电源重启
+```
+obj-$(CONFIG_MOTORCOMM_PHY) += motorcomm.o
+```
 
 
 
-- 电脑直连测试
+配置内核
 
-ping通电脑IP地址
+```
+make ARCH=arm64 CROSS_COMPILE=~/tools/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu- -j32 menuconfig
+```
 
-down
+进入Device Drivers  --->Network device support  --->PHY Device support and infrastructure  --->
 
-up
+选中Motorcomm PHYs
 
-再次ping电脑IP地址，ping不通
+保存退出
+
+编译
+
+```
+make ARCH=arm64 CROSS_COMPILE=~/tools/gcc-linaro-7.5.0-2019.12-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu- -j32
+```
+
+完成
+
+
+
+##### 注意
+
+网口配通之后down再up之后，需要等待一段时间才能自动配置路由
 
 
 
 
 
+### 制作u盘iso
 
+点开软件，点击最上面的文件，打开查找iso文件
 
+点击启动，选中写入硬盘映像
 
+写入方式选择为RAW
+
+点击下面按键格式化，格式化硬盘
+
+点击写入，等待写入完成
+
+完成
 
 
 
@@ -1515,8 +1554,6 @@ make CC=aarch64-linux-gnu-gcc
 ./can_demo_app -d can0 -s 300 -b 55
 ```
 
-
-
 查看中断
 
 cat /proc/interrupts
@@ -1535,11 +1572,19 @@ make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- -j64    menuconfig
 
 
 
-kernel地址
+kernel目录
 
 ```
 /home/yuanjilin/JARI/linux-kprl/arch/arm64/boot/Image.gz
 ```
+
+文件系统目录
+
+```
+/home/wangx/kw/kprl/bsp/phytium/ft2000a/JARI-WORKS/rootfs_overlay
+```
+
+
 
 
 
@@ -1553,25 +1598,12 @@ raspberrypi-hwmon.ko
 
 
 
-
-
-gpt1
-
-a1ea5554-aeb9-412a-9f9d-675be56d705e
-
-
-
-gpt3
-
-40bf4590-7534-465e-b4a7-8d1677e80364
-
-
-
 nvme0n1p1
 
 
 
-
+0x0000011a
+0x00000128
 
 
 

@@ -342,11 +342,17 @@ git commit -m "描述"
 
 
 
+# grep指令
 
+```
+grep [-acinv] [--color=auto] '查找内容' filename
 
-
-
-
+-c :计算找到查找内容的次数
+-i :忽略大小写
+-n :输出行号
+-v ：反向选择，输出无查找内容的部分
+--color=auto :将关键字部分加上颜色
+```
 
 
 
